@@ -77,6 +77,21 @@ public class CreateBot
             adapter.Fill(table);
             await botClient.SendTextMessageAsync(message.Chat.Id, "Приветствую!");
         }
+        else if(KeyWords.Meals.Contains(loweredMessage))
+        {
+            InlineKeyboardMarkup inlineKeyboard = new(new[]
+            {
+                // first row
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData(text: "Завтрак с сухофруктами", callbackData: Meals.BreakfastWithDriedFruits.ToString()),
+                    InlineKeyboardButton.WithCallbackData(text: "НЕТ", callbackData: "Clear"),
+                }
+            });
+            
+            await botClient.SendTextMessageAsync(message.Chat.Id, "Посчитать?", cancellationToken: _cts.Token,  replyMarkup: inlineKeyboard);
+        }
+        
         else if(KeyWords.Weather.Contains(message.Text.ToLower()))
         {
             await WeatherRequest(botClient, message);
@@ -137,6 +152,10 @@ public class CreateBot
             case "Clear":
                 await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "Очистил!");
                 break;
+            case "BreakfastWithDriedFruits":
+                var meal = new BreakfastWithDriedFruits(2, 3);
+                await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, meal.PrintResult());
+                break;
         }
     }
     
@@ -183,4 +202,77 @@ public class CreateBot
     {
         throw new NotImplementedException();
     }
+}
+
+class BreakfastWithDriedFruits
+{
+    private readonly Meals _meal;
+    private const double Cereals = 50;
+    private const double DriedFruits = 30;
+    private const double Kefir = 150;
+    private const double СottageСheese = 80;
+    private const double Apples = 250;
+    private const double Chicken = 300;
+    private const double Cheese = 30;
+    private const double Egg = 1;
+    private const double RiceFlour = 25;
+    private const double SourСream = 30;
+    private const double Bulgur = 30;
+    private const double Сucumbers = 100;
+    private const double Tomato = 100;
+    private const double OliveOil = 17;
+    
+    private readonly int _persons;
+    private readonly int _days;
+    
+    public BreakfastWithDriedFruits(int persons, int days)
+    {
+        _persons = persons;
+        _days = days;
+    }
+    
+    private double Calculate(double value, int persons, int days)
+    {
+        return value * persons * days;
+    }
+    
+    public string PrintResult()
+    {
+        var cereals = Calculate(Cereals, _persons, _days);
+        var driedFruits = Calculate(DriedFruits, _persons, _days);
+        var kefir = Calculate(Kefir, _persons, _days);
+        var cottageСheese = Calculate(СottageСheese, _persons, _days);
+        var apples = Calculate(Apples, _persons, _days);
+        var chicken = Calculate(Chicken, _persons, _days);
+        var cheese = Calculate(Cheese, _persons, _days);
+        var egg = Calculate(Egg, _persons, _days);
+        var riceFlour = Calculate(RiceFlour, _persons, _days);
+        var sourСream = Calculate(SourСream, _persons, _days);
+        var bulgur = Calculate(Bulgur, _persons, _days);
+        var сucumbers = Calculate(Сucumbers, _persons, _days);
+        var tomato = Calculate(Tomato, _persons, _days);
+        var oliveOil = Calculate(OliveOil, _persons, _days);
+
+        var result = $"Овсяные хлопья: {cereals}\n" +
+                     $"Сухофрукты: {driedFruits}\n" +
+                     $"Кефир: {kefir}\n" +
+                     $"Творог: {cottageСheese}\n" +
+                     $"Яблоки: {apples}\n" +
+                     $"Курица: {chicken}\n" +
+                     $"Сыр: {cheese}\n" +
+                     $"Яйца: {egg}\n" +
+                     $"Рисовая мука: {riceFlour}\n" +
+                     $"Сметана: {sourСream}\n" +
+                     $"Булгур: {bulgur}\n" +
+                     $"Огурцы: {сucumbers}\n" +
+                     $"Помидоры: {tomato}\n" +
+                     $"Оливковое масло: {oliveOil}\n";
+
+        return result;
+    }
+}
+
+internal enum Meals
+{
+    BreakfastWithDriedFruits = 0,
 }
