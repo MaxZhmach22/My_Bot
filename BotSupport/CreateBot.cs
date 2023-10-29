@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Data;
+using System.Data.SqlClient;
+using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using BotSupport;
@@ -11,11 +13,18 @@ public class CreateBot
     private const string WeatherApiKey = "aef5c8145ae6fd0125d2951b30a7e9f3";
     private CancellationTokenSource _cts = new ();
     private readonly Dictionary<long, bool> _calculateRequests = new();
+    private readonly SqlConnection _sqlConnection;
 
+    public CreateBot(SqlConnection sqlConnection)
+    {
+        _sqlConnection = sqlConnection;
+    }
+    
     public void CreateBotMethod(string token)
     {
         var botClient = new TelegramBotClient(token);
         botClient.StartReceiving(Update, Error);
+
     }
 
     private async Task Update(ITelegramBotClient botClient, Update update, CancellationToken token)
@@ -57,6 +66,16 @@ public class CreateBot
 
             await botClient.SendTextMessageAsync(message.Chat.Id, "Приветствую!");
             
+        }
+        else if(KeyWords.DataBase.Contains(loweredMessage))
+        {
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+            string query = $"select * from Bot";
+            SqlCommand command = new SqlCommand(query, _sqlConnection);
+            adapter.SelectCommand = command;
+            adapter.Fill(table);
+            await botClient.SendTextMessageAsync(message.Chat.Id, "Приветствую!");
         }
         else if(KeyWords.Weather.Contains(message.Text.ToLower()))
         {
@@ -108,12 +127,11 @@ public class CreateBot
         {
             case "Calculate":
             {
-                if (update.CallbackQuery.Message != null)
-                {
-                    var id = update.CallbackQuery.Message.Chat.Id;
-                    await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "Введите сумму!");
-                    _calculateRequests.Add(id, true);
-                }
+                if (update.CallbackQuery.Message == null) return;
+                
+                var id = update.CallbackQuery.Message.Chat.Id;
+                await botClient.SendTextMessageAsync(update.CallbackQuery.Message.Chat.Id, "Введите сумму!");
+                _calculateRequests.Add(id, true);
                 break;
             }
             case "Clear":

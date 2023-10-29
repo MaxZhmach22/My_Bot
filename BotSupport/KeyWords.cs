@@ -7,4 +7,5 @@ public static class KeyWords
     public static readonly string[] Payment = { "расход", "paymant", "payment", "расходы", "платеж", "платежи", "платежный", "платежная", "платежн" };
     public static readonly string[] Agreement = {"да","yes","пожалуй","можно", "действуй"};
     public static readonly string[] Disagreement = { "нет", "no", "выходи" };
+    public static readonly string[] DataBase = { "DB", "database", "дата", "таблица" };
 }

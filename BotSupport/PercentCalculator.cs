@@ -15,13 +15,17 @@ public class PercentCalculator
         var fund = CalculatePercent(value, Fund);
         var payments = CalculatePercent(value, Payments);
         var credits = CalculatePercent(value, Credits);
-
+        var last = value - weekend - travel - fund - payments - credits;
         return $"На отпуск: {weekend} => {Weekend}%\n" +
                $"На проезд: {travel} => {Travel}%\n" +
                $"НЗ: {fund} => {Fund}%\n" +
                $"На ком. платежи: {payments} => {Payments}%\n" +
                $"На кредит: {credits} => {Credits}%\n" +
-               $"Остаток: {value - weekend - travel - fund - payments - credits}";
+               $"\n" +
+               $"Маше: {weekend}\n"+
+               $"Alfa остаток: {Math.Truncate(last * 100) / 100}\n" +
+               $"На сбер => {fund + payments + credits}\n" +
+               $"На ВТБ => {travel}";
     }
     
     private double CalculatePercent(double value, double percent)
